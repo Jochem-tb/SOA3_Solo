@@ -21,5 +21,6 @@ public interface IObservable
     /// <summary>
     /// Notifies all attached observers of a state change.
     /// </summary>
-    void NotifyObservers();
+    /// <param name="context">Optional context information about the change.</param>
+    void NotifyObservers(string context = "State changed");
 }

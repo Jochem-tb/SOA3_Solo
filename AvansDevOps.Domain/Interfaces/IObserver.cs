@@ -12,6 +12,6 @@ public interface IObserver
     /// Called when an observable object notifies its observers of a change.
     /// </summary>
     /// <param name="context">Contextual information about the change.</param>
-    /// <param name="user">The user associated with the change.</param>
-    void Update(string context, User user);
+    /// <param name="user">The user associated with the change, if available.</param>
+    void Update(string context, User? user);
 }

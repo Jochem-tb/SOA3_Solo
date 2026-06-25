@@ -20,7 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AvansDevOps.Core\AvansDevOps.Core.csproj" />
+    <ProjectReference Include="..\AvansDevOps.Domain\AvansDevOps.Domain.csproj" />
+    <ProjectReference Include="..\AvansDevOps.Infrastructure\AvansDevOps.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
