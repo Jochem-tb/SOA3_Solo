@@ -6,23 +6,57 @@ on:
             - main
 
 jobs:
-    build-test-analyze:
-        name: Build, Test & SonarCloud
+    build:
+        name: Build
         runs-on: ubuntu-latest
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0 # SonarCloud needs full history for blame/PR analysis
+              uses: actions/checkout@v5
 
             - name: Setup .NET
-              uses: actions/setup-dotnet@v4
+              uses: actions/setup-dotnet@v5
               with:
                   dotnet-version: "10.x"
 
             - name: Build
               run: dotnet build --no-incremental
 
+            - name: Upload build artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: build-output
+                  path: |
+                      **/bin/
+                      **/obj/
+
+    test:
+        name: Test
+        runs-on: ubuntu-latest
+        needs: build
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v5
+              with:
+                  dotnet-version: "10.x"
+
+            - name: Download build artifacts
+              uses: actions/download-artifact@v4
+              with:
+                  name: build-output
+
             - name: Test
               run: dotnet test --no-build
+
+    deploy:
+        name: Deploy
+        runs-on: ubuntu-latest
+        needs: test
+
+        steps:
+            - name: Deploy placeholder
+              run: echo "All tests passed — deploying application!"
