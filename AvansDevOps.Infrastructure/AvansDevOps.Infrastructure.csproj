@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
+    <ProjectGuid>8a9c3d7e-2b1f-4c6a-9e3d-5f8b2a1c4d7e</ProjectGuid>
   </PropertyGroup>
 
   <ItemGroup>

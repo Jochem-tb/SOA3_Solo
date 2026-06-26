@@ -27,12 +27,6 @@ jobs:
                   java-version: 17
                   distribution: "zulu" # SonarScanner requires Java
 
-            - name: Build
-              run: dotnet build --no-incremental
-
-            - name: Test and collect coverage
-              run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-
             - name: Install SonarCloud scanner
               run: dotnet tool install --global dotnet-sonarscanner
 
@@ -47,6 +41,12 @@ jobs:
                     /d:sonar.token="$SONAR_TOKEN" \
                     /d:sonar.host.url="https://sonarcloud.io" \
                     /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+
+            - name: Build
+              run: dotnet build --no-incremental
+
+            - name: Test and collect coverage
+              run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
             - name: End SonarCloud analysis
               env:
