@@ -3,6 +3,7 @@ using AvansDevOps.Domain.Enums;
 using AvansDevOps.Domain.Interfaces;
 using AvansDevOps.Domain.State;
 using AvansDevOps.Infrastructure.Decorators;
+using Moq;
 
 namespace AvansDevOps.Tests;
 
@@ -50,12 +51,15 @@ public class ApplicationShowcaseTests
     [Fact]
     public void BacklogItemWorkflowAndDiscussion_Works()
     {
+        // Arrange
         var developer = CreateUser("Bob Dev", "bob@example.com", NotificationPreference.Slack);
         var loginItem = CreateBacklogItemWithActivities("Login Feature", "Implement login", developer, "Create login endpoint", "Create login UI");
 
-        var observer = new ShowcaseObserver();
-        loginItem.Attach(observer);
+        var observerMock = new Mock<IObserver>();
+        observerMock.Setup(o => o.Update(It.IsAny<string>(), It.IsAny<User?>()));
+        loginItem.Attach(observerMock.Object);
 
+        // Act
         Assert.IsType<TodoState>(loginItem.State);
         loginItem.State!.MoveToDoing();
 
@@ -80,13 +84,15 @@ public class ApplicationShowcaseTests
             activity.MarkAsDone();
         }
 
+        // Assert
         Assert.True(loginItem.IsDone());
-        Assert.True(observer.Messages.Count > 0);
+        observerMock.Verify(o => o.Update(It.IsAny<string>(), developer), Times.AtLeastOnce);
     }
 
     [Fact]
     public void SprintClosurePipelineAndNotification_Works()
     {
+        // Arrange
         var productOwner = CreateUser("Alice PO", "alice@example.com", NotificationPreference.Email, NotificationPreference.Slack);
         var developer = CreateUser("Bob Dev", "bob@example.com", NotificationPreference.Slack);
 
@@ -112,9 +118,14 @@ public class ApplicationShowcaseTests
 
         if (sprint is ReleaseSprint releaseSprint)
         {
+            var actionMock = new Mock<IPipelineAction>();
+            actionMock.Setup(a => a.Execute()).Returns(true);
+            actionMock.Setup(a => a.Rollback()).Returns(true);
+
             releaseSprint.DeploymentPipeline = new DevelopmentPipeline();
-            releaseSprint.DeploymentPipeline.AddAction(new FakePipelineAction());
+            releaseSprint.DeploymentPipeline.AddAction(actionMock.Object);
             Assert.True(releaseSprint.DeploymentPipeline.Execute());
+            actionMock.Verify(a => a.Execute(), Times.Once);
         }
 
         var notificationManager = new NotificationManager();
@@ -165,20 +176,4 @@ public class ApplicationShowcaseTests
         }
     }
 
-    private sealed class ShowcaseObserver : IObserver
-    {
-        public List<string> Messages { get; } = [];
-
-        public void Update(string context, User? user)
-        {
-            Messages.Add($"{context}:{user?.Name ?? "none"}");
-        }
-    }
-
-    private sealed class FakePipelineAction : IPipelineAction
-    {
-        public bool Execute() => true;
-
-        public bool Rollback() => true;
-    }
 }
