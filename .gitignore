@@ -18,6 +18,10 @@ x64/
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 
+# Code coverage
+coverage.opencover.xml
+coverage/
+
 *_i.c
 *_p.c
 *_i.h
